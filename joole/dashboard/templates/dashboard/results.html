@@ -4,6 +4,7 @@
 
 {% block style %}
     <link rel="stylesheet" href="{% static 'dashboard/css/results.css' %}" media="all"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
 {% endblock %}
 
 {% block content %}
@@ -13,10 +14,56 @@
     </div>
 </div>
 
- -----> YOUR CODE HERE <-----
+<h2>Année {{conso_euro.year}}</h2>
+
+
+Consommation : {{ annual_consumption.2017 }} kW/h<br/>
+Votre budget énergie: {{ annual_costs.0 }} €<br/>
+
+<div id="chart" style="height: 250px; width: 1000px;"></div>
+
+Chauffage électrique : {{ is_elec_heating }}<br/>
+Anomalie détectée : {{ dysfunction_detected }}<br/>
+
 
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'dashboard/js/results.js' %}"></script>
+
+<script type="text/javascript">
+
+var conso_watt = JSON.parse("{{ conso_watt_string }}".replace(/&#39;/gi, '"'))
+console.log(conso_watt)
+
+var data = []
+for (var key in conso_watt) {
+    if (conso_watt.hasOwnProperty(key)) {
+        data.push({
+            month: key,
+            value: conso_watt[key]
+        })
+    }
+}
+console.log(data)
+
+new Morris.Line({
+    // ID of the element in which to draw the chart.
+    element: 'chart',
+    data: data,
+/*   data: [
+    { year: '2008', value: 20 },
+    { year: '2009', value: 10 },
+    { year: '2010', value: 5 },
+    { year: '2011', value: 5 },
+    { year: '2012', value: 20 }
+  ], */
+    xkey: 'month',
+    ykeys: ['value'],
+    labels: ['Value'],
+    parseTime: false 
+  });
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
 {% endblock %}
