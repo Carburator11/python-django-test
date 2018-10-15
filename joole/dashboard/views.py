@@ -5,7 +5,11 @@ from .forms import ClientForm
 from .models import Conso_eur, Conso_watt
 from statistics import mean
 from . import utils
+from django.http import HttpResponse
 import json
+
+current_year = utils.current_year
+previous_year = current_year -1 
 
 class ClientFormView(View):
     def get(self, request):
@@ -63,9 +67,7 @@ def _dysfunction_detected(conso_watt, conso_watt_previous_year):
 
     return False, None
 
-def results(request, client_id):
-    current_year = utils.current_year
-    previous_year = current_year -1 
+def get_client_data(client_id):
     conso_euro = Conso_eur.objects.get(client_id=client_id, year=current_year)
     conso_euro_previous_year = Conso_eur.objects.get(client_id=client_id, year=previous_year)
     conso_watt = Conso_watt.objects.get(client_id=client_id, year=current_year)
@@ -77,12 +79,10 @@ def results(request, client_id):
         current_year: int(annual_sum(conso_watt)),
         (current_year-1): int(annual_sum(conso_watt_previous_year)),
     }
-    is_elec_heating, winter_sommer_ratio = _is_elec_heating(client_id)
-    dysfunction_detected, _ = _dysfunction_detected(conso_watt, conso_watt_previous_year)
 
     data_conso = {
         'Janvier':  int(conso_watt.janvier),
-        'Février':  int(conso_watt.fevrier),
+        'Fevrier':  int(conso_watt.fevrier),
         'Mars':     int(conso_watt.mars),
         'Avril':    int(conso_watt.avril),
         'Mai':      int(conso_watt.mai),
@@ -92,9 +92,15 @@ def results(request, client_id):
         'Septembre':int(conso_watt.septembre),
         'Octobre':  int(conso_watt.octobre),
         'Novembre': int(conso_watt.novembre),
-        'Décembre': int(conso_watt.decembre),
+        'Decembre': int(conso_watt.decembre),
     }
+    return conso_euro, conso_watt, conso_euro_previous_year, conso_watt_previous_year, annual_costs, annual_consumption, data_conso
 
+
+def results(request, client_id):
+    is_elec_heating, winter_sommer_ratio = _is_elec_heating(client_id)
+    conso_euro, conso_watt, conso_euro_previous_year, conso_watt_previous_year, annual_costs, annual_consumption, data_conso = get_client_data(client_id)
+    dysfunction_detected, _ = _dysfunction_detected(conso_watt, conso_watt_previous_year)
     context = {
         "conso_euro": conso_euro,
         "conso_watt": conso_watt,
@@ -107,3 +113,11 @@ def results(request, client_id):
         "conso_watt_string": data_conso  
         }
     return render(request, 'dashboard/results.html', context)
+
+def api(request, client_id):
+    res = HttpResponse()
+    res.status_code = 200
+    res. content_type = "application/json"
+    _, _, _, _, _, _, data_conso = get_client_data(client_id)
+    res.content = json.dumps(data_conso, default=str)
+    return res
