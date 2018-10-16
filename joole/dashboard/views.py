@@ -67,6 +67,31 @@ def _dysfunction_detected(conso_watt, conso_watt_previous_year):
 
     return False, None
 
+def get_serialized_client_data(model, client_id):
+    if model.lower() == "conso_watt":
+        query_object = Conso_watt.objects.get(client_id=client_id, year=current_year)
+    elif model.lower() == "conso_eur":
+        query_object = Conso_eur.objects.get(client_id=client_id, year=current_year)
+    else:
+        raise NameError
+
+    serie = {
+        'Janvier':  int(query_object.janvier),
+        'Fevrier':  int(query_object.fevrier),
+        'Mars':     int(query_object.mars),
+        'Avril':    int(query_object.avril),
+        'Mai':      int(query_object.mai),
+        'Juin':     int(query_object.juin),
+        'Juillet':  int(query_object.juillet),
+        'Aout':     int(query_object.aout),
+        'Septembre':int(query_object.septembre),
+        'Octobre':  int(query_object.octobre),
+        'Novembre': int(query_object.novembre),
+        'Decembre': int(query_object.decembre),
+    }
+    return serie
+
+
 def get_client_data(client_id):
     conso_euro = Conso_eur.objects.get(client_id=client_id, year=current_year)
     conso_euro_previous_year = Conso_eur.objects.get(client_id=client_id, year=previous_year)
@@ -79,23 +104,8 @@ def get_client_data(client_id):
         current_year: int(annual_sum(conso_watt)),
         (current_year-1): int(annual_sum(conso_watt_previous_year)),
     }
-
-    data_conso = {
-        'Janvier':  int(conso_watt.janvier),
-        'Fevrier':  int(conso_watt.fevrier),
-        'Mars':     int(conso_watt.mars),
-        'Avril':    int(conso_watt.avril),
-        'Mai':      int(conso_watt.mai),
-        'Juin':     int(conso_watt.juin),
-        'Juillet':  int(conso_watt.juillet),
-        'Aout':     int(conso_watt.aout),
-        'Septembre':int(conso_watt.septembre),
-        'Octobre':  int(conso_watt.octobre),
-        'Novembre': int(conso_watt.novembre),
-        'Decembre': int(conso_watt.decembre),
-    }
+    data_conso = get_serialized_client_data("Conso_watt", client_id)
     return conso_euro, conso_watt, conso_euro_previous_year, conso_watt_previous_year, annual_costs, annual_consumption, data_conso
-
 
 def results(request, client_id):
     is_elec_heating, winter_sommer_ratio = _is_elec_heating(client_id)
@@ -115,9 +125,8 @@ def results(request, client_id):
     return render(request, 'dashboard/results.html', context)
 
 def api(request, client_id):
-    res = HttpResponse()
+    data_conso = get_serialized_client_data("Conso_watt", client_id)
+    json_dump = json.dumps(data_conso)
+    res = HttpResponse(json_dump, content_type="application/json")
     res.status_code = 200
-    res. content_type = "application/json"
-    _, _, _, _, _, _, data_conso = get_client_data(client_id)
-    res.content = json.dumps(data_conso, default=str)
     return res
