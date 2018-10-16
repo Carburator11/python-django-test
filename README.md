@@ -1,3 +1,5 @@
+$cd joole && npm run build    (requires NPM or Yarn)
+
 $source myenv/bin/activate
 
 $python3 manage.py runserver
