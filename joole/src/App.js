@@ -10,7 +10,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-      <h2>Hello Watt</h2>
+      <h2>Dashboard</h2>
 
       <HashRouter>
         <div>

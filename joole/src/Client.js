@@ -9,13 +9,13 @@ class Client extends Component {
     
         this.state = {
             clientData: {},
+            id: this.props.match.params.id
         };
     }
     
     componentDidMount() {
         const API = "/api/client"
-        const id  = this.props.match.params.id
-        const url = `${API}/${id}`
+        const url = `${API}/${this.state.id}`
         console.log(url)
         fetch(url, params.get)
             .then(response => {
@@ -23,18 +23,19 @@ class Client extends Component {
                 response.json()
             .then(data => {
                 console.log("Data", data)
-                this.setState({ clientData: data })});
+                this.setState({ 
+                    clientData: data,
+                 })});
             })
         }
     
     render() {
-        const id  = this.props.match.params.id
         const data = this.state.clientData
         if(true){
         // if (data && data.length > 0){
             return (
                 <div>
-                    <p>CLient id: {id}</p>
+                    <p>Client id: {this.state.id}</p>
                     <ClientDashboard data = {data} />
                 </div>
             )
