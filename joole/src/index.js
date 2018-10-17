@@ -7,6 +7,7 @@ import ClientDashboard from './ClientDashboard'
 import Home from './Home'
 import Client from './Client'
 import Loader from './Loader'
+import FomError from './FormError'
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
@@ -15,4 +16,4 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-export {Home, Client, ClientDashboard, Loader}
+export {Home, Client, ClientDashboard, Loader, FomError}
