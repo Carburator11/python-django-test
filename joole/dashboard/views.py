@@ -42,8 +42,8 @@ def _average_winter_consumption(conso_watt):
                  conso_watt.novembre,
                  conso_watt.decembre,
                  conso_watt.janvier,
-                 conso_watt.avril,
-                 conso_watt.fevrier])
+                 conso_watt.fevrier,
+                 conso_watt.mars,])
 
 def _average_sommer_consumption(conso_watt):
     return mean([conso_watt.avril,
@@ -64,7 +64,6 @@ def _dysfunction_detected(conso_watt, conso_watt_previous_year):
     variance = abs((annual_sum(conso_watt) - annual_sum(conso_watt_previous_year)) / annual_sum(conso_watt_previous_year))
     if variance > utils.dysfunction_variance:
         return True, variance
-
     return False, None
 
 def get_serialized_client_data(model, client_id):

@@ -2,6 +2,21 @@ import React, { Component } from 'react';
 import { ClientDashboard, Loader } from "./"
 import {params} from './config'
 
+const fetchData = (id, cb) => {
+    const API = "/api/client"
+    const url = `${API}/${id}`
+    console.log(url)
+    fetch(url, params.get)
+        .then(response => {
+            console.log("Response ", response)
+            response.json()
+        .then(data => {
+            console.log("Data", data)
+            return cb(data)
+            });
+        })
+}
+
 class Client extends Component {
 
     constructor(props) {
@@ -14,20 +29,9 @@ class Client extends Component {
     }
     
     componentDidMount() {
-        const API = "/api/client"
-        const url = `${API}/${this.state.id}`
-        console.log(url)
-        fetch(url, params.get)
-            .then(response => {
-                console.log("Response ", response)
-                response.json()
-            .then(data => {
-                console.log("Data", data)
-                this.setState({ 
-                    clientData: data,
-                 })});
-            })
-        }
+        fetchData(this.state.id, data => this.setState({clientData: data}))
+    }
+    
     
     render() {
         const data = this.state.clientData
